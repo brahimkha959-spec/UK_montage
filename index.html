@@ -3,552 +3,141 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مونتاج — استوديو المونتاج البسيط</title>
-<style>
-  @font-face { font-family: 'Bebas'; src: local('Arial'); }
-  :root{
-    --bg: #0D0D0F;
-    --panel: #17181C;
-    --panel2: #1F2026;
-    --line: #2B2C33;
-    --amber: #F2A93B;
-    --amber-dim: #7A5A24;
-    --teal: #2DD4BF;
-    --text: #ECECEC;
-    --text-dim: #8A8B93;
-    --danger: #E0524F;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0; background:var(--bg); color:var(--text);
-    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
-    min-height:100vh;
-  }
-  .perf-row{
-    display:flex; gap:6px; padding:6px 24px; background:#000;
-  }
-  .perf-row span{
-    width:10px; height:6px; background:#333; border-radius:1px; flex-shrink:0;
-  }
-  header{
-    padding:18px 24px 14px; border-bottom:1px solid var(--line);
-    display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;
-  }
-  header h1{
-    font-size:26px; letter-spacing:2px; margin:0; font-weight:800;
-    color:var(--amber);
-  }
-  header .sub{ color:var(--text-dim); font-size:13px; font-family:'Consolas','Courier New',monospace; }
-  .wrap{ max-width:1100px; margin:0 auto; padding:24px; }
-  .layout{ display:grid; grid-template-columns: 1fr 300px; gap:20px; }
-  @media(max-width:820px){ .layout{grid-template-columns:1fr;} }
-
-  .stage{
-    background:#000; border:1px solid var(--line); border-radius:10px;
-    display:flex; align-items:center; justify-content:center;
-    position:relative; overflow:hidden; min-height:320px;
-  }
-  #dropzone{
-    padding:50px 20px; text-align:center; color:var(--text-dim); cursor:pointer;
-    width:100%;
-  }
-  #dropzone.drag{ color:var(--amber); }
-  #dropzone .icon{ font-size:40px; display:block; margin-bottom:10px; }
-  video, canvas{ max-width:100%; display:block; }
-  #overlayCanvas{ position:absolute; top:0; left:0; pointer-events:none; }
-
-  .panel{
-    background:var(--panel); border:1px solid var(--line); border-radius:10px;
-    padding:16px; margin-bottom:16px;
-  }
-  .panel h2{
-    font-size:12px; text-transform:uppercase; letter-spacing:1.5px;
-    color:var(--text-dim); margin:0 0 12px; font-weight:700;
-  }
-  .row{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
-  .row:last-child{ margin-bottom:0; }
-  .row label{ font-size:13px; color:var(--text-dim); min-width:70px; }
-  input[type=range]{
-    -webkit-appearance:none; flex:1; height:4px; background:var(--line);
-    border-radius:2px; outline:none;
-  }
-  input[type=range]::-webkit-slider-thumb{
-    -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
-    background:var(--amber); cursor:pointer; border:2px solid #000;
-  }
-  input[type=text]{
-    flex:1; background:var(--panel2); border:1px solid var(--line); color:var(--text);
-    padding:8px 10px; border-radius:6px; font-size:13px;
-  }
-  input[type=color]{ width:34px; height:28px; border:none; background:none; padding:0; cursor:pointer; }
-  select{
-    background:var(--panel2); color:var(--text); border:1px solid var(--line);
-    padding:6px; border-radius:6px; font-size:13px;
-  }
-  .val{ font-family:'Consolas','Courier New',monospace; font-size:12px; color:var(--amber); min-width:38px; text-align:left; }
-
-  .timeline{
-    margin-top:16px; background:var(--panel); border:1px solid var(--line);
-    border-radius:10px; padding:16px;
-  }
-  .tc{
-    font-family:'Consolas','Courier New',monospace; font-size:13px; color:var(--teal);
-    display:flex; justify-content:space-between; margin-bottom:8px;
-  }
-  .strip{
-    position:relative; height:46px; background:repeating-linear-gradient(
-      90deg, #232429, #232429 9px, #17181C 9px, #17181C 10px
-    ); border-radius:6px; overflow:hidden; border:1px solid var(--line);
-  }
-  .range-select{
-    position:absolute; top:0; bottom:0; background:rgba(242,169,59,0.22);
-    border-left:2px solid var(--amber); border-right:2px solid var(--amber);
-  }
-  .playhead{
-    position:absolute; top:0; bottom:0; width:2px; background:var(--teal);
-  }
-  .dual-slider{ position:relative; height:20px; margin-top:8px; }
-  .dual-slider input[type=range]{
-    position:absolute; width:100%; top:6px; pointer-events:none; background:none;
-  }
-  .dual-slider input[type=range]::-webkit-slider-thumb{ pointer-events:all; }
-
-  button{
-    background:var(--panel2); border:1px solid var(--line); color:var(--text);
-    padding:10px 16px; border-radius:6px; cursor:pointer; font-size:13px;
-    font-weight:600; letter-spacing:0.3px;
-  }
-  button:hover{ border-color:var(--amber); }
-  button:disabled{ opacity:0.4; cursor:not-allowed; }
-  .primary{ background:var(--amber); color:#1a1200; border-color:var(--amber); }
-  .primary:hover{ background:#ffbf5c; }
-  .btn-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
-  .textlist{ display:flex; flex-direction:column; gap:8px; margin-top:10px; }
-  .text-item{
-    display:flex; gap:6px; align-items:center; background:var(--panel2);
-    padding:6px 8px; border-radius:6px; font-size:12px;
-  }
-  .text-item button{ padding:4px 8px; font-size:11px; }
-  #status{ font-size:12px; color:var(--text-dim); margin-top:10px; min-height:16px; }
-  #progressBar{ height:4px; background:var(--line); border-radius:2px; overflow:hidden; margin-top:6px; display:none;}
-  #progressBar > div{ height:100%; background:var(--teal); width:0%; }
-  a#downloadLink{ display:none; }
-</style>
+<title>UNTECK MONTAGE</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="perf-row" id="perfTop"></div>
+<!-- ============ شاشة إنشاء / اختيار مشروع ============ -->
+<div id="landing">
+  <div class="land-card">
+    <div class="land-logo">UNTECK MONTAGE</div>
+    <div class="land-sub">استوديو مونتاج بسيط — كل المعالجة تتم في متصفحك</div>
 
-<header>
-  <h1>MONTAGE</h1>
-  <span class="sub">استوديو مونتاج بسيط في متصفحك — بدون رفع ملفات لأي خادم</span>
-</header>
-
-<div class="wrap">
-  <div class="layout">
-
-    <div>
-      <div class="stage" id="stage">
-        <div id="dropzone">
-          <span class="icon"><i class="ti ti-movie"></i>🎬</span>
-          اسحب فيديو هنا أو اضغط لاختيار ملف
-          <input type="file" id="fileInput" accept="video/*" style="display:none">
-        </div>
-      </div>
-
-      <div class="timeline" id="timelineBox" style="display:none">
-        <div class="tc">
-          <span id="tcStart">00:00.0</span>
-          <span id="tcCurrent">00:00.0</span>
-          <span id="tcEnd">00:00.0</span>
-        </div>
-        <div class="strip" id="strip">
-          <div class="range-select" id="rangeSelect"></div>
-          <div class="playhead" id="playhead"></div>
-        </div>
-        <div class="dual-slider">
-          <input type="range" id="startRange" min="0" max="100" value="0" step="0.1">
-          <input type="range" id="endRange" min="0" max="100" value="100" step="0.1">
-        </div>
-        <div class="btn-row">
-          <button id="playBtn">▶ تشغيل</button>
-          <button id="setStartBtn">تعيين البداية هنا</button>
-          <button id="setEndBtn">تعيين النهاية هنا</button>
-        </div>
-      </div>
+    <div id="projectsSection">
+      <div class="land-section-title">مشاريعي</div>
+      <div id="projectsList"></div>
+      <div id="noProjects" style="display:none; font-size:12.5px; color:var(--text-dim); margin:8px 0 18px;">لا توجد مشاريع محفوظة بعد</div>
+      <button id="newProjectBtn" class="primary" style="width:100%; margin-top:6px;">+ مشروع جديد</button>
     </div>
 
-    <div>
-      <div class="panel" id="uploadHint">
-        <h2>ابدأ</h2>
-        <div style="font-size:13px; color:var(--text-dim); line-height:1.6;">
-          ارفع فيديو قصير (MP4 أو WebM) لتبدأ القص، إضافة نص، وضبط الألوان، ثم التصدير.
-        </div>
+    <div id="newProjectForm" style="display:none">
+      <div class="land-section-title" style="margin-top:20px;">مشروع جديد</div>
+      <label>اسم المشروع</label>
+      <input type="text" id="projectName" placeholder="مثال: فيديو الرحلة" value="مشروع بدون عنوان">
+      <div id="dropzone">
+        <span class="icon">🎬</span>
+        اسحب فيديو هنا أو اضغط لاختيار ملف لإنشاء المشروع
+        <input type="file" id="fileInput" accept="video/*" style="display:none">
       </div>
-
-      <div class="panel" id="filtersPanel" style="display:none">
-        <h2>الألوان</h2>
-        <div class="row">
-          <label>السطوع</label>
-          <input type="range" id="brightness" min="50" max="150" value="100">
-          <span class="val" id="brightnessVal">100%</span>
-        </div>
-        <div class="row">
-          <label>التباين</label>
-          <input type="range" id="contrast" min="50" max="150" value="100">
-          <span class="val" id="contrastVal">100%</span>
-        </div>
-        <div class="row">
-          <label>التشبع</label>
-          <input type="range" id="saturate" min="0" max="200" value="100">
-          <span class="val" id="saturateVal">100%</span>
-        </div>
-        <div class="row">
-          <label>الصوت</label>
-          <input type="range" id="volume" min="0" max="100" value="100">
-          <span class="val" id="volumeVal">100%</span>
-        </div>
-      </div>
-
-      <div class="panel" id="textPanel" style="display:none">
-        <h2>نص على الفيديو</h2>
-        <div class="row">
-          <input type="text" id="textInput" placeholder="اكتب نصك هنا">
-          <input type="color" id="textColor" value="#F2A93B">
-        </div>
-        <div class="row">
-          <label>الحجم</label>
-          <input type="range" id="textSize" min="14" max="64" value="28">
-          <span class="val" id="textSizeVal">28</span>
-        </div>
-        <div class="row">
-          <label>الموضع</label>
-          <select id="textPos">
-            <option value="bottom">أسفل</option>
-            <option value="top">أعلى</option>
-            <option value="center">وسط</option>
-          </select>
-        </div>
-        <button id="addTextBtn" style="width:100%">+ إضافة النص</button>
-        <div class="textlist" id="textList"></div>
-      </div>
-
-      <div class="panel" id="exportPanel" style="display:none">
-        <h2>تصدير</h2>
-        <div style="font-size:12px; color:var(--text-dim); margin-bottom:10px;">
-          سيتم تصدير المقطع المحدد فقط (بين البداية والنهاية) كملف WebM.
-        </div>
-        <button class="primary" id="exportBtn" style="width:100%">تصدير الفيديو</button>
-        <div id="status"></div>
-        <div id="progressBar"><div id="progressFill"></div></div>
-        <a id="downloadLink"></a>
-      </div>
+      <button id="backToListBtn" style="width:100%; margin-top:10px;">رجوع لمشاريعي</button>
     </div>
-
   </div>
 </div>
 
-<script>
-const dropzone = document.getElementById('dropzone');
-const fileInput = document.getElementById('fileInput');
-const stage = document.getElementById('stage');
-let video, overlayCanvas, octx;
-let duration = 0;
-let clipStart = 0, clipEnd = 0;
-let textOverlays = [];
-let animId = null;
+<!-- ============ مساحة العمل ============ -->
+<div id="workspace">
+  <div id="topbar">
+    <div class="brand"><b>UNTECK MONTAGE</b><span id="projTitle">مشروع بدون عنوان</span></div>
+    <div style="display:flex; gap:8px;">
+      <button id="myProjectsBtn">مشاريعي</button>
+      <button id="saveProjectBtn">💾 حفظ</button>
+      <button class="primary" id="exportBtn">تصدير الفيديو</button>
+    </div>
+  </div>
 
-// perforation strip decoration
-const perf = document.getElementById('perfTop');
-for(let i=0;i<40;i++){ const s=document.createElement('span'); perf.appendChild(s); }
+  <div id="stageArea">
+    <div id="stageInner">
+      <!-- سيتم إدراج video و canvas هنا -->
+    </div>
+  </div>
 
-dropzone.addEventListener('click', ()=>fileInput.click());
-dropzone.addEventListener('dragover', e=>{ e.preventDefault(); dropzone.classList.add('drag'); });
-dropzone.addEventListener('dragleave', ()=> dropzone.classList.remove('drag'));
-dropzone.addEventListener('drop', e=>{
-  e.preventDefault(); dropzone.classList.remove('drag');
-  if(e.dataTransfer.files[0]) loadVideo(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', e=>{
-  if(e.target.files[0]) loadVideo(e.target.files[0]);
-});
+  <div id="timelineBar">
+    <div class="tc"><span id="tcStart">00:00.0</span><span id="tcCurrent">00:00.0</span><span id="tcEnd">00:00.0</span></div>
+    <div class="strip" id="strip">
+      <div id="thumbRow"></div>
+      <div class="range-select" id="rangeSelect"></div>
+      <div class="playhead" id="playhead"></div>
+    </div>
+    <div class="dual-slider">
+      <input type="range" id="startRange" min="0" max="100" value="0" step="0.1">
+      <input type="range" id="endRange" min="0" max="100" value="100" step="0.1">
+    </div>
+    <div id="timelineBtns">
+      <button id="playBtn">▶ تشغيل</button>
+      <button id="setStartBtn">تعيين البداية هنا</button>
+      <button id="setEndBtn">تعيين النهاية هنا</button>
+    </div>
+  </div>
 
-function loadVideo(file){
-  stage.innerHTML = '';
-  video = document.createElement('video');
-  video.src = URL.createObjectURL(file);
-  video.style.maxWidth = '100%';
-  video.playsInline = true;
-  stage.appendChild(video);
+  <!-- لوحات الأدوات -->
+  <div id="toolPanel">
 
-  overlayCanvas = document.createElement('canvas');
-  overlayCanvas.id = 'overlayCanvas';
-  stage.appendChild(overlayCanvas);
-  octx = overlayCanvas.getContext('2d');
+    <div class="tool-content" id="panel-color">
+      <div class="panel-title">الألوان والسرعة</div>
+      <div class="panel-grid">
+        <div>
+          <div class="row"><label>السرعة</label><input type="range" id="speed" min="0.25" max="3" value="1" step="0.05"><span class="val" id="speedVal">1.0x</span></div>
+          <div class="row"><label>السطوع</label><input type="range" id="brightness" min="50" max="150" value="100"><span class="val" id="brightnessVal">100%</span></div>
+        </div>
+        <div>
+          <div class="row"><label>التباين</label><input type="range" id="contrast" min="50" max="150" value="100"><span class="val" id="contrastVal">100%</span></div>
+          <div class="row"><label>التشبع</label><input type="range" id="saturate" min="0" max="200" value="100"><span class="val" id="saturateVal">100%</span></div>
+        </div>
+      </div>
+    </div>
 
-  video.addEventListener('loadedmetadata', ()=>{
-    duration = video.duration;
-    clipStart = 0; clipEnd = duration;
-    document.getElementById('startRange').max = duration;
-    document.getElementById('endRange').max = duration;
-    document.getElementById('endRange').value = duration;
-    document.getElementById('startRange').value = 0;
-    document.getElementById('tcStart').textContent = fmt(0);
-    document.getElementById('tcEnd').textContent = fmt(duration);
-    updateRangeSelect();
+    <div class="tool-content" id="panel-audio" style="display:none">
+      <div class="panel-title">الصوت والموسيقى</div>
+      <div class="panel-grid">
+        <div>
+          <div class="row"><label>صوت الفيديو</label><input type="range" id="volume" min="0" max="100" value="100"><span class="val" id="volumeVal">100%</span></div>
+        </div>
+        <div>
+          <div class="row"><input type="file" id="musicInput" accept="audio/*"></div>
+          <div class="row" id="musicVolRow" style="display:none"><label>حدة الموسيقى</label><input type="range" id="musicVolume" min="0" max="100" value="40"><span class="val" id="musicVolumeVal">40%</span></div>
+          <div id="musicName" style="font-size:11.5px; color:var(--text-dim);"></div>
+        </div>
+      </div>
+    </div>
 
-    const r = video.getBoundingClientRect();
-    overlayCanvas.width = video.videoWidth;
-    overlayCanvas.height = video.videoHeight;
+    <div class="tool-content" id="panel-text" style="display:none">
+      <div class="panel-title">نص وصور فوق الفيديو</div>
+      <div class="panel-grid">
+        <div>
+          <div class="row"><input type="text" id="textInput" placeholder="اكتب نصك هنا" style="flex:1"><input type="color" id="textColor" value="#F2A93B"></div>
+          <div class="row"><label>الحجم</label><input type="range" id="textSize" min="14" max="64" value="28"><span class="val" id="textSizeVal">28</span></div>
+          <button id="addTextBtn" style="width:100%">+ إضافة نص</button>
+          <div class="divider"></div>
+          <div class="row"><input type="file" id="imageInput" accept="image/*,image/gif"></div>
+          <button id="addImageBtn" style="width:100%">+ إضافة صورة / GIF</button>
+          <div style="font-size:11px; color:var(--text-dim); margin-top:8px;">اسحب أي عنصر فوق الفيديو لتحريكه. نقر مزدوج على نص لتعديله.</div>
+        </div>
+        <div><div id="textList"></div></div>
+      </div>
+    </div>
 
-    document.getElementById('timelineBox').style.display = 'block';
-    document.getElementById('filtersPanel').style.display = 'block';
-    document.getElementById('textPanel').style.display = 'block';
-    document.getElementById('exportPanel').style.display = 'block';
-    document.getElementById('uploadHint').style.display = 'none';
+    <div class="tool-content" id="panel-export" style="display:none">
+      <div class="panel-title">تصدير</div>
+      <div style="font-size:12px; color:var(--text-dim); margin-bottom:10px;">سيتم تصدير المقطع المحدد فقط مع كل المؤثرات كملف WebM.</div>
+      <button class="primary" id="exportBtn2" style="width:220px">تصدير الفيديو</button>
+      <div id="status"></div>
+      <div id="progressBar"><div id="progressFill"></div></div>
+      <a id="downloadLink"></a>
+    </div>
 
-    video.currentTime = 0;
-    drawOverlay();
-  });
+  </div>
 
-  video.addEventListener('timeupdate', ()=>{
-    document.getElementById('tcCurrent').textContent = fmt(video.currentTime);
-    const pct = (video.currentTime/duration)*100;
-    document.getElementById('playhead').style.left = pct+'%';
-    if(video.currentTime >= clipEnd){ video.pause(); document.getElementById('playBtn').textContent='▶ تشغيل'; }
-    drawOverlay();
-  });
+  <!-- شريط الأدوات -->
+  <div id="toolbar">
+    <button class="tool-btn" data-panel="color"><span class="ic">🎚️</span><span class="lbl">ألوان وسرعة</span></button>
+    <button class="tool-btn" data-panel="audio"><span class="ic">🎵</span><span class="lbl">صوت وموسيقى</span></button>
+    <button class="tool-btn" data-panel="text"><span class="ic">🔤</span><span class="lbl">نص وصور</span></button>
+    <button class="tool-btn export" data-panel="export"><span class="ic">⬇️</span><span class="lbl">تصدير</span></button>
+  </div>
+</div>
 
-  applyFilters();
-}
-
-function fmt(t){
-  const m = Math.floor(t/60);
-  const s = (t%60).toFixed(1);
-  return String(m).padStart(2,'0')+':'+String(s).padStart(4,'0');
-}
-
-function updateRangeSelect(){
-  const rs = document.getElementById('rangeSelect');
-  rs.style.left = (clipStart/duration*100)+'%';
-  rs.style.width = ((clipEnd-clipStart)/duration*100)+'%';
-}
-
-document.getElementById('startRange').addEventListener('input', e=>{
-  clipStart = Math.min(parseFloat(e.target.value), clipEnd-0.1);
-  e.target.value = clipStart;
-  document.getElementById('tcStart').textContent = fmt(clipStart);
-  updateRangeSelect();
-});
-document.getElementById('endRange').addEventListener('input', e=>{
-  clipEnd = Math.max(parseFloat(e.target.value), clipStart+0.1);
-  e.target.value = clipEnd;
-  document.getElementById('tcEnd').textContent = fmt(clipEnd);
-  updateRangeSelect();
-});
-document.getElementById('setStartBtn').addEventListener('click', ()=>{
-  if(!video) return;
-  clipStart = video.currentTime;
-  document.getElementById('startRange').value = clipStart;
-  document.getElementById('tcStart').textContent = fmt(clipStart);
-  updateRangeSelect();
-});
-document.getElementById('setEndBtn').addEventListener('click', ()=>{
-  if(!video) return;
-  clipEnd = video.currentTime;
-  document.getElementById('endRange').value = clipEnd;
-  document.getElementById('tcEnd').textContent = fmt(clipEnd);
-  updateRangeSelect();
-});
-
-document.getElementById('playBtn').addEventListener('click', ()=>{
-  if(!video) return;
-  if(video.paused){
-    if(video.currentTime < clipStart || video.currentTime >= clipEnd) video.currentTime = clipStart;
-    video.play();
-    document.getElementById('playBtn').textContent = '⏸ إيقاف';
-  } else {
-    video.pause();
-    document.getElementById('playBtn').textContent = '▶ تشغيل';
-  }
-});
-
-document.getElementById('strip').addEventListener('click', e=>{
-  if(!video) return;
-  const rect = e.currentTarget.getBoundingClientRect();
-  const pct = (e.clientX - rect.left)/rect.width;
-  video.currentTime = pct*duration;
-});
-
-// filters
-function applyFilters(){
-  if(!video) return;
-  const b = document.getElementById('brightness').value;
-  const c = document.getElementById('contrast').value;
-  const s = document.getElementById('saturate').value;
-  video.style.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
-  video.volume = document.getElementById('volume').value/100;
-}
-['brightness','contrast','saturate'].forEach(id=>{
-  document.getElementById(id).addEventListener('input', e=>{
-    document.getElementById(id+'Val').textContent = e.target.value+'%';
-    applyFilters();
-  });
-});
-document.getElementById('volume').addEventListener('input', e=>{
-  document.getElementById('volumeVal').textContent = e.target.value+'%';
-  applyFilters();
-});
-document.getElementById('textSize').addEventListener('input', e=>{
-  document.getElementById('textSizeVal').textContent = e.target.value;
-});
-
-// text overlays
-document.getElementById('addTextBtn').addEventListener('click', ()=>{
-  const val = document.getElementById('textInput').value.trim();
-  if(!val) return;
-  const item = {
-    text: val,
-    color: document.getElementById('textColor').value,
-    size: parseInt(document.getElementById('textSize').value),
-    pos: document.getElementById('textPos').value,
-    id: Date.now()
-  };
-  textOverlays.push(item);
-  document.getElementById('textInput').value = '';
-  renderTextList();
-  drawOverlay();
-});
-
-function renderTextList(){
-  const list = document.getElementById('textList');
-  list.innerHTML = '';
-  textOverlays.forEach(item=>{
-    const div = document.createElement('div');
-    div.className = 'text-item';
-    div.innerHTML = `<span style="flex:1; color:${item.color}">${item.text}</span><button data-id="${item.id}">حذف</button>`;
-    div.querySelector('button').addEventListener('click', ()=>{
-      textOverlays = textOverlays.filter(t=>t.id!==item.id);
-      renderTextList();
-      drawOverlay();
-    });
-    list.appendChild(div);
-  });
-}
-
-function drawOverlay(){
-  if(!octx) return;
-  octx.clearRect(0,0,overlayCanvas.width, overlayCanvas.height);
-  textOverlays.forEach(item=>{
-    octx.font = `bold ${item.size}px sans-serif`;
-    octx.fillStyle = item.color;
-    octx.textAlign = 'center';
-    octx.strokeStyle = 'rgba(0,0,0,0.6)';
-    octx.lineWidth = 3;
-    let y;
-    if(item.pos==='top') y = item.size + 20;
-    else if(item.pos==='center') y = overlayCanvas.height/2;
-    else y = overlayCanvas.height - 30;
-    octx.strokeText(item.text, overlayCanvas.width/2, y);
-    octx.fillText(item.text, overlayCanvas.width/2, y);
-  });
-}
-
-// export
-document.getElementById('exportBtn').addEventListener('click', async ()=>{
-  if(!video) return;
-  const btn = document.getElementById('exportBtn');
-  const status = document.getElementById('status');
-  const bar = document.getElementById('progressBar');
-  const fill = document.getElementById('progressFill');
-  btn.disabled = true;
-  bar.style.display = 'block';
-  status.textContent = 'جارِ التحضير...';
-
-  const exportCanvas = document.createElement('canvas');
-  exportCanvas.width = video.videoWidth;
-  exportCanvas.height = video.videoHeight;
-  const ectx = exportCanvas.getContext('2d');
-
-  const canvasStream = exportCanvas.captureStream(30);
-
-  let audioStream = null;
-  try{
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const source = audioCtx.createMediaElementSource(video);
-    const dest = audioCtx.createMediaStreamDestination();
-    source.connect(dest);
-    source.connect(audioCtx.destination);
-    audioStream = dest.stream;
-  }catch(e){}
-
-  const tracks = [...canvasStream.getVideoTracks()];
-  if(audioStream) tracks.push(...audioStream.getAudioTracks());
-  const combined = new MediaStream(tracks);
-
-  let mimeType = 'video/webm;codecs=vp9,opus';
-  if(!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
-
-  const recorder = new MediaRecorder(combined, { mimeType });
-  const chunks = [];
-  recorder.ondataavailable = e=>{ if(e.data.size>0) chunks.push(e.data); };
-
-  recorder.onstop = ()=>{
-    const blob = new Blob(chunks, {type:'video/webm'});
-    const url = URL.createObjectURL(blob);
-    const link = document.getElementById('downloadLink');
-    link.href = url;
-    link.download = 'montage-export.webm';
-    link.click();
-    status.textContent = 'تم التصدير بنجاح.';
-    bar.style.display = 'none';
-    btn.disabled = false;
-    video.style.filter = video.style.filter; // no-op keep preview filters
-  };
-
-  video.pause();
-  video.currentTime = clipStart;
-  await new Promise(r=>{ video.onseeked = r; });
-
-  const b = document.getElementById('brightness').value;
-  const c = document.getElementById('contrast').value;
-  const s = document.getElementById('saturate').value;
-  ectx.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
-
-  recorder.start();
-  video.play();
-
-  function renderFrame(){
-    if(video.currentTime >= clipEnd || video.ended){
-      video.pause();
-      recorder.stop();
-      return;
-    }
-    ectx.drawImage(video, 0, 0, exportCanvas.width, exportCanvas.height);
-    textOverlays.forEach(item=>{
-      ectx.save();
-      ectx.filter = 'none';
-      ectx.font = `bold ${item.size}px sans-serif`;
-      ectx.fillStyle = item.color;
-      ectx.textAlign = 'center';
-      ectx.strokeStyle = 'rgba(0,0,0,0.6)';
-      ectx.lineWidth = 3;
-      let y;
-      if(item.pos==='top') y = item.size + 20;
-      else if(item.pos==='center') y = exportCanvas.height/2;
-      else y = exportCanvas.height - 30;
-      ectx.strokeText(item.text, exportCanvas.width/2, y);
-      ectx.fillText(item.text, exportCanvas.width/2, y);
-      ectx.restore();
-    });
-    const pct = Math.min(100, ((video.currentTime-clipStart)/(clipEnd-clipStart))*100);
-    fill.style.width = pct+'%';
-    status.textContent = 'جارِ التصدير... ' + Math.round(pct) + '%';
-    animId = requestAnimationFrame(renderFrame);
-  }
-  renderFrame();
-});
-</script>
+<script></script>
 
 </body>
 </html>
