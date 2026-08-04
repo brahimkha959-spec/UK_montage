@@ -1,0 +1,186 @@
+:root{
+    --bg: #0A0A0C;
+    --panel: #16171B;
+    --panel2: #1E2024;
+    --line: #2A2C33;
+    --amber: #F2A93B;
+    --teal: #2DD4BF;
+    --text: #ECECEC;
+    --text-dim: #85868F;
+    --danger: #E0524F;
+  }
+  *{box-sizing:border-box;}
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Segoe UI', Tahoma, Arial, sans-serif;
+    overflow:hidden;
+  }
+  button{
+    background:var(--panel2); border:1px solid var(--line); color:var(--text);
+    padding:9px 14px; border-radius:8px; cursor:pointer; font-size:13px;
+    font-weight:600;
+  }
+  button:hover{ border-color:var(--amber); }
+  button:disabled{ opacity:0.35; cursor:not-allowed; }
+  .primary{ background:var(--amber); color:#1a1200; border-color:var(--amber); }
+  .primary:hover{ background:#ffbf5c; }
+  input[type=text]{
+    background:var(--panel2); border:1px solid var(--line); color:var(--text);
+    padding:10px 12px; border-radius:8px; font-size:14px;
+  }
+  input[type=range]{
+    -webkit-appearance:none; flex:1; height:4px; background:var(--line);
+    border-radius:2px; outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
+    background:var(--amber); cursor:pointer; border:2px solid #000;
+  }
+  input[type=color]{ width:34px; height:30px; border:none; background:none; padding:0; cursor:pointer; }
+  select{ background:var(--panel2); color:var(--text); border:1px solid var(--line); padding:7px; border-radius:8px; font-size:13px; }
+
+  /* ---------- شاشة إنشاء المشروع ---------- */
+  #landing{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 50% 20%, #1a1b20 0%, #0A0A0C 70%);
+    z-index:50;
+  }
+  .land-card{
+    width:420px; max-width:90vw; background:var(--panel); border:1px solid var(--line);
+    border-radius:16px; padding:36px 30px; text-align:center;
+  }
+  .land-logo{ font-size:28px; font-weight:800; letter-spacing:2px; color:var(--amber); margin-bottom:4px; }
+  .land-sub{ font-size:12px; color:var(--text-dim); font-family:'Consolas',monospace; margin-bottom:26px; }
+  .land-card label{ display:block; text-align:right; font-size:12px; color:var(--text-dim); margin-bottom:6px; }
+  .land-card input[type=text]{ width:100%; margin-bottom:20px; }
+  #dropzone{
+    border:1.5px dashed var(--line); border-radius:12px; padding:34px 16px;
+    color:var(--text-dim); cursor:pointer; margin-bottom:10px; transition:border-color .15s;
+  }
+  #dropzone.drag{ border-color:var(--amber); color:var(--amber); }
+  #dropzone .icon{ font-size:34px; display:block; margin-bottom:8px; }
+  .land-section-title{ text-align:right; font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1.5px; font-weight:700; margin-bottom:10px; }
+  #projectsList{ display:flex; flex-direction:column; gap:8px; max-height:260px; overflow-y:auto; margin-bottom:6px; }
+  .proj-card{
+    display:flex; align-items:center; gap:10px; background:var(--panel2);
+    border:1px solid var(--line); border-radius:10px; padding:8px 10px;
+    cursor:pointer; text-align:right;
+  }
+  .proj-card:hover{ border-color:var(--amber); }
+  .proj-thumb{
+    width:52px; height:38px; border-radius:6px; background:#000; flex-shrink:0;
+    object-fit:cover; border:1px solid var(--line);
+  }
+  .proj-info{ flex:1; min-width:0; }
+  .proj-info .pname{ font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .proj-info .pdate{ font-size:11px; color:var(--text-dim); }
+  .proj-del{ background:none; border:none; color:var(--text-dim); font-size:15px; padding:4px 6px; }
+  .proj-del:hover{ color:var(--danger); border-color:transparent; }
+
+  /* ---------- مساحة العمل ---------- */
+  #workspace{ display:none; height:100vh; flex-direction:column; }
+  #topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 18px; border-bottom:1px solid var(--line); background:var(--panel);
+    flex-shrink:0;
+  }
+  #topbar .brand{ display:flex; align-items:baseline; gap:10px; }
+  #topbar .brand b{ color:var(--amber); letter-spacing:1.5px; font-size:16px; }
+  #topbar .brand span{ color:var(--text-dim); font-size:12px; font-family:'Consolas',monospace; }
+
+  #stageArea{
+    flex:1; display:flex; align-items:center; justify-content:center;
+    background:#000; position:relative; overflow:hidden; min-height:0;
+    height:0;
+  }
+  video, canvas{ max-width:100%; max-height:100%; display:block; }
+  #stageInner{ position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+  #overlayCanvas{ position:absolute; cursor:grab; pointer-events:auto; }
+  #overlayCanvas.dragging{ cursor:grabbing; }
+
+  /* شريط المونتاج (التايم لاين) */
+  #timelineBar{
+    flex-shrink:0; background:var(--panel); border-top:1px solid var(--line);
+    padding:10px 18px 12px;
+  }
+  .tc{ font-family:'Consolas',monospace; font-size:12px; color:var(--teal); display:flex; justify-content:space-between; margin-bottom:6px; }
+  .strip{
+    position:relative; height:52px; background:#17181C;
+    border-radius:6px; overflow:hidden; border:1px solid var(--line);
+    display:flex;
+  }
+  #thumbRow{ display:flex; width:100%; height:100%; }
+  #thumbRow canvas{ height:100%; flex:1 1 0; min-width:0; object-fit:cover; display:block; border-left:1px solid #000; }
+  .range-select{ position:absolute; top:0; bottom:0; background:rgba(242,169,59,0.22); border-left:2px solid var(--amber); border-right:2px solid var(--amber); }
+  .playhead{ position:absolute; top:0; bottom:0; width:2px; background:var(--teal); }
+  .dual-slider{ position:relative; height:18px; margin-top:6px; }
+  .dual-slider input[type=range]{ position:absolute; width:100%; top:6px; pointer-events:none; background:none; }
+  .dual-slider input[type=range]::-webkit-slider-thumb{ pointer-events:all; }
+  #timelineBtns{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+
+  /* شريط الأدوات السفلي */
+  #toolbar{
+    flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    gap:6px; background:#000; border-top:1px solid var(--line);
+    padding:8px 12px; overflow-x:auto;
+  }
+  .tool-btn{
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    background:none; border:1px solid transparent; padding:8px 14px;
+    color:var(--text-dim); border-radius:10px; min-width:64px;
+  }
+  .tool-btn .ic{ font-size:19px; }
+  .tool-btn span.lbl{ font-size:10.5px; font-weight:600; }
+  .tool-btn:hover{ color:var(--text); }
+  .tool-btn.active{ color:var(--amber); background:var(--panel2); border-color:var(--line); }
+  .tool-btn.export{ color:var(--amber); }
+
+  /* لوحة الأدوات المنبثقة فوق شريط الأدوات */
+  #toolPanel{
+    display:none; flex-shrink:0; background:var(--panel); border-top:1px solid var(--line);
+    padding:14px 18px; max-height:38vh; overflow-y:auto;
+  }
+  #toolPanel.open{ display:block; }
+  .panel-title{ font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-dim); font-weight:700; margin-bottom:12px; }
+  .row{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .row:last-child{ margin-bottom:0; }
+  .row label{ font-size:12.5px; color:var(--text-dim); min-width:78px; flex-shrink:0; }
+  .val{ font-family:'Consolas',monospace; font-size:12px; color:var(--amber); min-width:40px; text-align:left; }
+  .panel-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media(max-width:760px){ .panel-grid{ grid-template-columns:1fr; } }
+  .divider{ border-top:1px solid var(--line); margin:12px 0; }
+  .ov-item{ display:flex; gap:6px; align-items:center; background:var(--panel2); padding:6px 8px; border-radius:6px; font-size:12px; margin-bottom:6px;}
+  .ov-item.selected{ border:1px solid var(--amber); }
+  .ov-item span{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ov-item button{ padding:4px 7px; font-size:11px; }
+  #status{ font-size:12px; color:var(--text-dim); margin-top:8px; min-height:16px; }
+  #progressBar{ height:4px; background:var(--line); border-radius:2px; overflow:hidden; margin-top:6px; display:none;}
+  #progressBar > div{ height:100%; background:var(--teal); width:0%; }
+  a#downloadLink{ display:none; }
+  input[type=file]{ font-size:12px; color:var(--text-dim); flex:1; }
+
+  /* ---------- توافق مع الهاتف ---------- */
+  @media (max-width:640px){
+    .land-card{ padding:26px 18px; }
+    #topbar{ padding:8px 10px; flex-wrap:wrap; gap:6px; }
+    #topbar .brand b{ font-size:14px; }
+    #topbar .brand span{ display:none; }
+    #topbar button{ padding:7px 9px; font-size:11.5px; }
+    #timelineBar{ padding:8px 10px 10px; }
+    .strip{ height:40px; }
+    #timelineBtns{ gap:6px; }
+    #timelineBtns button{ padding:8px 10px; font-size:12px; flex:1; }
+    .tool-btn{ min-width:52px; padding:7px 8px; }
+    .tool-btn .ic{ font-size:17px; }
+    .tool-btn span.lbl{ font-size:9px; }
+    #toolPanel{ padding:12px; max-height:46vh; }
+    .row{ flex-wrap:wrap; }
+    .row label{ min-width:100%; margin-bottom:2px; }
+    .row input[type=range]{ width:100%; }
+    #stageArea{ padding:4px; }
+  }
+  @media (max-width:400px){
+    .tool-btn span.lbl{ display:none; }
+    .tool-btn{ min-width:44px; }
+  }

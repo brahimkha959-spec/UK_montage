@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNTECK MONTAGE</title>
+<link rel="stylesheet" href="montage.css">
+</head>
+<body>
+
+<!-- ============ شاشة إنشاء / اختيار مشروع ============ -->
+<div id="landing">
+  <div class="land-card">
+    <div class="land-logo">UNTECK MONTAGE</div>
+    <div class="land-sub">استوديو مونتاج بسيط — كل المعالجة تتم في متصفحك</div>
+
+    <div id="projectsSection">
+      <div class="land-section-title">مشاريعي</div>
+      <div id="projectsList"></div>
+      <div id="noProjects" style="display:none; font-size:12.5px; color:var(--text-dim); margin:8px 0 18px;">لا توجد مشاريع محفوظة بعد</div>
+      <button id="newProjectBtn" class="primary" style="width:100%; margin-top:6px;">+ مشروع جديد</button>
+    </div>
+
+    <div id="newProjectForm" style="display:none">
+      <div class="land-section-title" style="margin-top:20px;">مشروع جديد</div>
+      <label>اسم المشروع</label>
+      <input type="text" id="projectName" placeholder="مثال: فيديو الرحلة" value="مشروع بدون عنوان">
+      <div id="dropzone">
+        <span class="icon">🎬</span>
+        اسحب فيديو هنا أو اضغط لاختيار ملف لإنشاء المشروع
+        <input type="file" id="fileInput" accept="video/*" style="display:none">
+      </div>
+      <button id="backToListBtn" style="width:100%; margin-top:10px;">رجوع لمشاريعي</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ مساحة العمل ============ -->
+<div id="workspace">
+  <div id="topbar">
+    <div class="brand"><b>UNTECK MONTAGE</b><span id="projTitle">مشروع بدون عنوان</span></div>
+    <div style="display:flex; gap:8px;">
+      <button id="myProjectsBtn">مشاريعي</button>
+      <button id="saveProjectBtn">💾 حفظ</button>
+      <button class="primary" id="exportBtn">تصدير الفيديو</button>
+    </div>
+  </div>
+
+  <div id="stageArea">
+    <div id="stageInner">
+      <!-- سيتم إدراج video و canvas هنا -->
+    </div>
+  </div>
+
+  <div id="timelineBar">
+    <div class="tc"><span id="tcStart">00:00.0</span><span id="tcCurrent">00:00.0</span><span id="tcEnd">00:00.0</span></div>
+    <div class="strip" id="strip">
+      <div id="thumbRow"></div>
+      <div class="range-select" id="rangeSelect"></div>
+      <div class="playhead" id="playhead"></div>
+    </div>
+    <div class="dual-slider">
+      <input type="range" id="startRange" min="0" max="100" value="0" step="0.1">
+      <input type="range" id="endRange" min="0" max="100" value="100" step="0.1">
+    </div>
+    <div id="timelineBtns">
+      <button id="playBtn">▶ تشغيل</button>
+      <button id="setStartBtn">تعيين البداية هنا</button>
+      <button id="setEndBtn">تعيين النهاية هنا</button>
+    </div>
+  </div>
+
+  <!-- لوحات الأدوات -->
+  <div id="toolPanel">
+
+    <div class="tool-content" id="panel-color">
+      <div class="panel-title">الألوان والسرعة</div>
+      <div class="panel-grid">
+        <div>
+          <div class="row"><label>السرعة</label><input type="range" id="speed" min="0.25" max="3" value="1" step="0.05"><span class="val" id="speedVal">1.0x</span></div>
+          <div class="row"><label>السطوع</label><input type="range" id="brightness" min="50" max="150" value="100"><span class="val" id="brightnessVal">100%</span></div>
+        </div>
+        <div>
+          <div class="row"><label>التباين</label><input type="range" id="contrast" min="50" max="150" value="100"><span class="val" id="contrastVal">100%</span></div>
+          <div class="row"><label>التشبع</label><input type="range" id="saturate" min="0" max="200" value="100"><span class="val" id="saturateVal">100%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tool-content" id="panel-audio" style="display:none">
+      <div class="panel-title">الصوت والموسيقى</div>
+      <div class="panel-grid">
+        <div>
+          <div class="row"><label>صوت الفيديو</label><input type="range" id="volume" min="0" max="100" value="100"><span class="val" id="volumeVal">100%</span></div>
+        </div>
+        <div>
+          <div class="row"><input type="file" id="musicInput" accept="audio/*"></div>
+          <div class="row" id="musicVolRow" style="display:none"><label>حدة الموسيقى</label><input type="range" id="musicVolume" min="0" max="100" value="40"><span class="val" id="musicVolumeVal">40%</span></div>
+          <div id="musicName" style="font-size:11.5px; color:var(--text-dim);"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tool-content" id="panel-text" style="display:none">
+      <div class="panel-title">نص وصور فوق الفيديو</div>
+      <div class="panel-grid">
+        <div>
+          <div class="row"><input type="text" id="textInput" placeholder="اكتب نصك هنا" style="flex:1"><input type="color" id="textColor" value="#F2A93B"></div>
+          <div class="row"><label>الحجم</label><input type="range" id="textSize" min="14" max="64" value="28"><span class="val" id="textSizeVal">28</span></div>
+          <button id="addTextBtn" style="width:100%">+ إضافة نص</button>
+          <div class="divider"></div>
+          <div class="row"><input type="file" id="imageInput" accept="image/*,image/gif"></div>
+          <button id="addImageBtn" style="width:100%">+ إضافة صورة / GIF</button>
+          <div style="font-size:11px; color:var(--text-dim); margin-top:8px;">اسحب أي عنصر فوق الفيديو لتحريكه. نقر مزدوج على نص لتعديله.</div>
+        </div>
+        <div><div id="textList"></div></div>
+      </div>
+    </div>
+
+    <div class="tool-content" id="panel-export" style="display:none">
+      <div class="panel-title">تصدير</div>
+      <div style="font-size:12px; color:var(--text-dim); margin-bottom:10px;">سيتم تصدير المقطع المحدد فقط مع كل المؤثرات كملف WebM.</div>
+      <button class="primary" id="exportBtn2" style="width:220px">تصدير الفيديو</button>
+      <div id="status"></div>
+      <div id="progressBar"><div id="progressFill"></div></div>
+      <a id="downloadLink"></a>
+    </div>
+
+  </div>
+
+  <!-- شريط الأدوات -->
+  <div id="toolbar">
+    <button class="tool-btn" data-panel="color"><span class="ic">🎚️</span><span class="lbl">ألوان وسرعة</span></button>
+    <button class="tool-btn" data-panel="audio"><span class="ic">🎵</span><span class="lbl">صوت وموسيقى</span></button>
+    <button class="tool-btn" data-panel="text"><span class="ic">🔤</span><span class="lbl">نص وصور</span></button>
+    <button class="tool-btn export" data-panel="export"><span class="ic">⬇️</span><span class="lbl">تصدير</span></button>
+  </div>
+</div>
+
+<script src="montage.js"></script>
+
+</body>
+</html>
